@@ -1,0 +1,112 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+
+```{r}
+# Import libraries
+library(rtracklayer)
+library(GenomicAlignments)
+library(Rsamtools)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(Gviz)
+library(ChIPQC)
+```
+
+
+```{r}
+# Read in BAM and BED files - with rtracklayer and genomealignments
+# We look at wildtype vs. X285K variant, given Dox+ and R1881+
+
+wt <- "02WT_Dox+_R+/NA_peaks.narrowPeak"
+x285k <- "06X285K_Dox+_R+/NA_peaks.narrowPeak"
+
+extraCols_narrowPeak <- c(signalValue = "numeric", pValue = "numeric",
+                          qValue = "numeric", peak = "integer")
+                        
+w <- import.bed(wt, extraCols = extraCols_narrowPeak);
+x <- import.bed(x285k, extraCols = extraCols_narrowPeak);
+
+# Read in .bam data
+bamview <- BamViews("02_0CW1_01S6JHU_LN95WT-Dox-R1881_HOXB13_hg38_i74.bam", bamRanges = w);
+w.bam <- readGAlignments(bamview)
+bamview <- BamViews("06_0CW5_01S6JHU_LN95X285K-Dox-R1881_HOXB13_hg38_i81.bam", bamRanges = x);
+x.bam <- readGAlignments(bamview)
+
+# See number of peaks per chromosome. 
+table(w@seqnames)
+table(x@seqnames)
+# Number of reads per chromosome
+table(w.bam@listData$`02_0CW1_01S6JHU_LN95WT-Dox-R1881_HOXB13_hg38_i74.bam`@seqnames)
+table(x.bam@listData$`06_0CW5_01S6JHU_LN95X285K-Dox-R1881_HOXB13_hg38_i81.bam`@seqnames)
+
+
+
+
+# Do fastqc analysis
+BlackListFile <- ("hg38.blacklist.bed")
+exp <- ChIPQCsample("02_0CW1_01S6JHU_LN95WT-Dox-R1881_HOXB13_hg38_i74.bam",peaks = w,annotation = "hg38",blacklist = BlackListFile, verbose = FALSE)
+QCmetrics(exp) # Print the metrics
+
+plotFrip(exp) # fraction read in peaks (inside peaks vs. outside peaks)
+plotFribl(exp); # Plot fraction reads in blacklist (inside black and outside black)
+
+# Second file
+exp_x <- ChIPQCsample("06_0CW5_01S6JHU_LN95X285K-Dox-R1881_HOXB13_hg38_i81.bam",peaks = x,annotation = "hg38",blacklist = BlackListFile, verbose = FALSE)
+QCmetrics(exp_x) # Print the metrics
+
+plotFrip(exp_x) # fraction read in peaks (inside peaks vs. outside peaks)
+plotFribl(exp_x); # Plot fraction reads in blacklist (inside black and outside black)
+```
+
+
+```{r}
+# We look at wildtype vs. X285K variant, given Dox+ and R1881-
+# I should also try to understand what exactly fold enrichment represents.
+# This is some of my own code to analyse intra-sample data.
+chr1_inds <- which(w@seqnames == 'chr1')
+w_chr1 <- w[chr1_inds] 
+ranges <- w_chr1@ranges
+
+peak_loc <- start(ranges) + w_chr1@elementMetadata$peak # Get peak location
+scores <- w_chr1@elementMetadata$signalValue
+
+# Visualise read density
+hist(peak_loc)
+
+# starts
+# end
+
+total = peak_loc[length(peak_loc)] - peak_loc[1]
+# Let's try 1,000,000 range length. We expect ~250 bars.
+
+step = 1000000
+seqs = seq(1,ceiling(total),step)
+mean_enr = c()
+median_enr = c()
+
+for (i in 2:length(seqs)) {
+  rel_inds = which(seqs[i - 1] < peak_loc & peak_loc < seqs[i])
+  # Sum in those inds
+  mean_enr = c(mean_enr,sum(scores[rel_inds])/length(rel_inds)) # Total enrichment within bin / number of peaks (enrichment density)
+  median_enr = c(median_enr,median(scores[rel_inds])) # Median enrichment within bin
+  
+}
+
+# Where do the highest fold_enrichment genes occur, in terms of location?
+
+# 
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

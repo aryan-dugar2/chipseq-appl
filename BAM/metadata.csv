@@ -1,0 +1,9 @@
+SampleID, Condition, Treatment, bamReads, Peaks, PeakCaller
+01WT_Dox+_R-, WT, Dox+R-, 01_0CW0_01S6JHU_LN95WT-Dox-Veh_HOXB13_hg38_i71.bam, 01WT_Dox+_R-/NA_summits.bed, bed
+02WT_Dox+_R+, WT, Dox+R+, 02_0CW1_01S6JHU_LN95WT-Dox-R1881_HOXB13_hg38_i74.bam, 02WT_Dox+_R+/NA_summits.bed, bed
+03WT_Dox-_R-, WT, Dox-R-,  03_0CW2_01S6JHU_LN95WT-Minus-Veh_HOXB13_hg38_i77.bam, 03WT_Dox-_R-/NA_summits.bed, bed
+04WT_Dox-_R+, WT, Dox-R+,  04_0CW3_01S6JHU_LN95WT-Minus-R1881_HOXB13_hg38_i78.bam, 04WT_Dox-_R+/NA_summits.bed, bed
+05X285K_Dox+_R-, X285K, Dox+R-, 05_0CW4_01S6JHU_LN95X285K-Dox-Veh_HOXB13_hg38_i80.bam, 05X285K_Dox+_R-/NA_summits.bed, bed
+06X285K_Dox+_R+. X285K, Dox+R+,  06_0CW5_01S6JHU_LN95X285K-Dox-R1881_HOXB13_hg38_i81.bam, 06X285K_Dox+_R+/NA_summits.bed, bed
+07X285K_Dox-_R-, X285K, Dox-R-, 07_0CW6_01S6JHU_LN95X285K-Minus-Veh_HOXB13_hg38_i82.bam, 07X285K_Dox-_R-/NA_summits.bed, bed
+08X285K_Dox-_R+, X285K, Dox-R+,  08_0CW7_01S6JHU_LN95X285K-Minus-R1881_HOXB13_hg38_i84.bam, 08X285K_Dox-_R+/NA_summits.bed, bed
